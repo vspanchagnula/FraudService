@@ -1,0 +1,30 @@
+import com.fraud.model.rules.FraudTransactionRequest;
+import com.fraud.model.rules.TransactionStatus;
+global com.fraud.model.rules.FraudTransactionResponse fraudTransactionResponse;
+ 
+dialect "mvel"
+ 
+rule "If the amount of a transaction is over $50,000.00 decline the transaction."
+    when
+        FraudTransactionRequest(transactionAmount > 50000)
+    then
+       
+        fraudTransactionResponse.setTransactionStatus(TransactionStatus.DECLINED);
+end
+ 
+rule "If the card has been used over 60 times in the last 7 days, decline the transaction."
+    when
+        FraudTransactionRequest(timesCardUsed > 60)
+    then
+       
+        fraudTransactionResponse.setTransactionStatus(TransactionStatus.DECLINED);
+end
+     
+rule "If the card has been used under 35 times in the last 7 days, decline the transaction if the (transaction amount/times used in last 7 days) > 500."
+    when
+        FraudTransactionRequest(timesCardUsed<35 && transactionAmount/timesCardUsed >500)
+    then
+        
+       fraudTransactionResponse.setTransactionStatus(TransactionStatus.DECLINED);
+end
+ 
